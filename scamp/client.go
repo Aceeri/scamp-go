@@ -94,7 +94,7 @@ func (client *Client) Send(msg *Message) (responseChan chan *Message, err error)
 // Close unlocks a client mutex and closes the connection
 func (client *Client) Close() {
 	if len(client.spIdent) > 0 {
-		sp := defaultCache.Retrieve(client.spIdent)
+		sp := DefaultCache.Retrieve(client.spIdent)
 		if sp != nil {
 			sp.client = nil
 		}
