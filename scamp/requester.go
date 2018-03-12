@@ -2,6 +2,7 @@ package scamp
 
 import (
 	"fmt"
+	"sort"
 	"time"
 )
 
@@ -36,12 +37,22 @@ func MakeJSONRequest(sector, action string, version int, msg *Message) (message 
 	sent := false
 	var responseChan chan *Message
 
+	var clients []*Client
 	for _, serviceProxy := range serviceProxies {
 		client, err := serviceProxy.GetClient()
 		if err != nil {
 			continue
 		}
 
+		clients = append(clients, client)
+	}
+
+	// Sort based on queue depth.
+	sort.Slice(clients, func(i, j int) bool {
+		return len(clients[i].openReplies) < len(clients[j].openReplies)
+	})
+
+	for _, client := range clients {
 		responseChan, err = client.Send(msg)
 		if err == nil {
 			sent = true
