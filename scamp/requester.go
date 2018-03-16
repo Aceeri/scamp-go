@@ -2,6 +2,7 @@ package scamp
 
 import (
 	"fmt"
+	"math/rand"
 	"sort"
 	"time"
 )
@@ -49,7 +50,14 @@ func MakeJSONRequest(sector, action string, version int, msg *Message) (message 
 
 	// Sort based on queue depth.
 	sort.Slice(clients, func(i, j int) bool {
-		return len(clients[i].openReplies) < len(clients[j].openReplies)
+		ilen := len(clients[i].openReplies)
+		jlen := len(clients[j].openReplies)
+		if ilen == jlen {
+			ilen = rand.Intn(10) - 5
+			jlen = rand.Intn(10) - 5
+		}
+
+		return ilen < jlen
 	})
 
 	for _, client := range clients {
