@@ -48,14 +48,18 @@ func MakeJSONRequest(sector, action string, version int, msg *Message) (message 
 		clients = append(clients, client)
 	}
 
+	rand.Shuffle(len(clients), func(i, j int) {
+		clients[i], clients[j] = clients[j], clients[i]
+	})
+
 	// Sort based on queue depth.
 	sort.Slice(clients, func(i, j int) bool {
 		ilen := len(clients[i].openReplies)
 		jlen := len(clients[j].openReplies)
-		if ilen == jlen {
-			ilen = rand.Intn(10) - 5
-			jlen = rand.Intn(10) - 5
-		}
+		//if ilen == jlen {
+		//ilen = rand.Intn(10) - 5
+		//jlen = rand.Intn(10) - 5
+		//}
 
 		return ilen < jlen
 	})
