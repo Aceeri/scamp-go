@@ -40,12 +40,14 @@ func MakeJSONRequest(sector, action string, version int, msg *Message) (message 
 
 	var clients []*Client
 	for _, serviceProxy := range serviceProxies {
-		client, err := serviceProxy.GetClient()
-		if err != nil {
-			continue
-		}
+		if serviceProxy != nil {
+			client, err := serviceProxy.GetClient()
+			if err != nil || client == nil {
+				continue
+			}
 
-		clients = append(clients, client)
+			clients = append(clients, client)
+		}
 	}
 
 	rand.Shuffle(len(clients), func(i, j int) {
@@ -56,11 +58,6 @@ func MakeJSONRequest(sector, action string, version int, msg *Message) (message 
 	sort.Slice(clients, func(i, j int) bool {
 		ilen := len(clients[i].openReplies)
 		jlen := len(clients[j].openReplies)
-		//if ilen == jlen {
-		//ilen = rand.Intn(10) - 5
-		//jlen = rand.Intn(10) - 5
-		//}
-
 		return ilen < jlen
 	})
 
