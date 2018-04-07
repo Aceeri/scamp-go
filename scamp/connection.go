@@ -237,8 +237,9 @@ const RetryLimit = 50
 
 // Send sends a scamp message using the current *Connection
 func (conn *Connection) Send(msg *Message) (err error) {
-	if conn.isClosed {
+	if conn == nil || conn.isClosed {
 		err = fmt.Errorf("connection already closed")
+		return
 	}
 
 	conn.readWriterLock.Lock()
