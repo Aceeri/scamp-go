@@ -18,20 +18,16 @@ func loopbackInterface() (lo *net.Interface, err error) {
 	return
 }
 
-func localMulticastPacketConn() (conn *ipv4.PacketConn, err error) {
-	// TODO fundamentally change how multicast is sent. I can't get the API to work
-	// without creating a listener socket first but I shouldn't need it.
-	// Had issues with running multiple services (heka and sdk_service) so I'm
-	// going to the let the OS pick the port. `127.0.0.1:5556` used to work! -XRL
-	localMulticastSpec := "127.0.0.1:"
-	// Trace.Printf("announce binding to port: `%s`", localMulticastSpec)
+func multicastPacketConn(config *Config) (conn *ipv4.PacketConn, err error) {
+	addr := config.DiscoveryMulticastIP()
+	port := config.DiscoveryMulticastPort()
+	multicastSpec := fmt.Sprintf("%s:%d", addr, port)
 
-	udpConn, err := net.ListenPacket("udp", localMulticastSpec)
+	udpConn, err := net.ListenPacket("udp", multicastSpec)
 	if err != nil {
-		Error.Printf("could not listen to `%s`", localMulticastSpec)
+		Error.Printf("could not listen to `%s`", multicastSpec)
 		return
 	}
-	// Trace.Printf("udpConn.LocalAddr(): %s", udpConn.LocalAddr())
 
 	conn = ipv4.NewPacketConn(udpConn)
 	return

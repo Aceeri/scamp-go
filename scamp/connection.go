@@ -320,16 +320,16 @@ func (conn *Connection) ackBytes(msgno incomingMsgNo, unackedByteCount uint64) (
 	}
 
 	conn.readWriter.Flush()
-
 	return
 }
 
 // Close closes the current *Connection
 func (conn *Connection) Close() {
 	conn.closedMutex.Lock()
+	defer conn.closedMutex.Unlock()
+
 	if conn.isClosed {
 		// Trace.Printf("connection already closed. skipping shutdown.")
-		conn.closedMutex.Unlock()
 		return
 	}
 
@@ -343,5 +343,4 @@ func (conn *Connection) Close() {
 	// conn.readWriterLock.Unlock()
 
 	conn.isClosed = true
-	conn.closedMutex.Unlock()
 }

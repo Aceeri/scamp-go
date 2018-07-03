@@ -1,9 +1,10 @@
 package scamp
 
-import "time"
-import "net"
-
-import "golang.org/x/net/ipv4"
+import (
+	"golang.org/x/net/ipv4"
+	"net"
+	"time"
+)
 
 // DiscoveryAnnouncer ... TODO: godoc
 type DiscoveryAnnouncer struct {
@@ -21,8 +22,7 @@ func NewDiscoveryAnnouncer() (announcer *DiscoveryAnnouncer, err error) {
 
 	config := DefaultConfig()
 	announcer.multicastDest = &net.UDPAddr{IP: config.DiscoveryMulticastIP(), Port: config.DiscoveryMulticastPort()}
-	// announcer.multicastDest = &net.UDPAddr{IP: 127.0.0.1, Port: config.DiscoveryMulticastPort()}
-	announcer.multicastConn, err = localMulticastPacketConn()
+	announcer.multicastConn, err = multicastPacketConn(config)
 	if err != nil {
 		return
 	}
