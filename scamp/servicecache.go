@@ -98,6 +98,7 @@ func (cache *ServiceCache) removeNoLock(instance *serviceProxy) (err error) {
 // and sweep for stale proxy definitions.
 func (cache *ServiceCache) clearNoLock() (err error) {
 	cache.identIndex = make(map[string]*serviceProxy)
+	cache.actionIndex = make(map[string][]*serviceProxy)
 
 	return
 }
