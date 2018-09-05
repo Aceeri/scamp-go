@@ -1,9 +1,14 @@
 package scamp
 
-import "time"
-import "net"
+import (
+	"net"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-import "golang.org/x/net/ipv4"
+	"golang.org/x/net/ipv4"
+)
 
 // DiscoveryAnnouncer ... TODO: godoc
 type DiscoveryAnnouncer struct {
@@ -11,6 +16,7 @@ type DiscoveryAnnouncer struct {
 	multicastConn *ipv4.PacketConn
 	multicastDest *net.UDPAddr
 	stopSig       (chan bool)
+	termSig       (chan os.Signal)
 }
 
 // NewDiscoveryAnnouncer creates a DiscoveryAnnouncer
@@ -18,6 +24,8 @@ func NewDiscoveryAnnouncer() (announcer *DiscoveryAnnouncer, err error) {
 	announcer = new(DiscoveryAnnouncer)
 	announcer.services = make([]*Service, 0, 0)
 	announcer.stopSig = make(chan bool)
+	announcer.termSig = make(chan os.Signal, 1)
+	signal.Notify(announcer.termSig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	config := DefaultConfig()
 	announcer.multicastDest = &net.UDPAddr{IP: config.DiscoveryMulticastIP(), Port: config.DiscoveryMulticastPort()}
@@ -49,6 +57,8 @@ func (announcer *DiscoveryAnnouncer) AnnounceLoop() {
 	for {
 		select {
 		case <-announcer.stopSig:
+			return
+		case <-announcer.termSig:
 			return
 		default:
 			announcer.doAnnounce()

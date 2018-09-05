@@ -276,6 +276,25 @@ func (serv *Service) RemoveClient(client *Client) (err error) {
 
 // Stop closes the service's net.Listener
 func (serv *Service) Stop() {
+	after := time.After(30 * time.Second)
+
+ServiceWait:
+	for {
+		select {
+		case <-after:
+			break ServiceWait
+		default:
+		}
+
+		serv.clientsM.Lock()
+		clientsLength := len(serv.clients)
+		serv.clientsM.Unlock()
+
+		if clientsLength == 0 {
+			break
+		}
+	}
+
 	if serv.listener != nil {
 		serv.listener.Close()
 	}

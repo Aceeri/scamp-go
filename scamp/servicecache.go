@@ -117,6 +117,9 @@ func (cache *ServiceCache) Retrieve(ident string) (instance *serviceProxy) {
 }
 
 func (cache *ServiceCache) SearchByAction(sector, action string, version int, envelope string) (instances []*serviceProxy, err error) {
+	cache.cacheM.Lock()
+	defer cache.cacheM.Unlock()
+
 	mungedName := fmt.Sprintf("%s:%s~%d#%s", sector, action, version, envelope)
 	instances = cache.actionIndex[mungedName]
 	if len(instances) == 0 {
